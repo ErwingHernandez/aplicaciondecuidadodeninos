@@ -82,86 +82,64 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 /*Area de trabajo Erwing*/
 
-@Composable
-fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
-    val recomendacion by viewModel.recomendaciones.collectAsState()
-
-
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            items(recomendacion) { item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Edad: ${item.edad_meses_min} a ${item.edad_meses_max} meses",
-                            style = MaterialTheme.typography.labelLarge
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(text = item.contenido)
-                    }
-                }
-            }
-        }
-
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
+    val recomendaciones by viewModel.recomendaciones.collectAsState()
 
-fun RecomendacionesBotones() {
-    val opcionesMeses = listOf("0-6 meses", "6-9 meses", "9-12 meses")
-    val opcionesAnios = listOf("1-2 años")
+    // Opciones de filtro
+    val opciones = listOf(
+        "Todos",
+        "0-6 meses",
+        "6-9 meses",
+        "9-12 meses",
+        "12-24 meses"
+    )
 
-    var expandedMeses by remember { mutableStateOf(false) }
-    var selectedMeses by remember { mutableStateOf(opcionesMeses[0]) }
+    var expanded by remember { mutableStateOf(false) }
+    var seleccion by remember { mutableStateOf("Todos") }
 
-    var expandedAnios by remember { mutableStateOf(false) }
-    var selectedAnios by remember { mutableStateOf(opcionesAnios[0]) }
+    // Filtro basado en selección
+    val recomendacionesFiltradas = when (seleccion) {
+        "0-6 meses" -> recomendaciones.filter { it.edad_meses_min >= 0 && it.edad_meses_max <= 6 }
+        "6-9 meses" -> recomendaciones.filter { it.edad_meses_min >= 6 && it.edad_meses_max <= 9 }
+        "9-12 meses" -> recomendaciones.filter { it.edad_meses_min >= 9 && it.edad_meses_max <= 12 }
+        "12-24 meses" -> recomendaciones.filter { it.edad_meses_min >= 12 && it.edad_meses_max <= 24}
+        else -> recomendaciones
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFD6D6))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Recomendaciones Nutricionales",
-                style = MaterialTheme.typography.titleLarge
-            )
+    ){
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)) {
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Dropdown Meses
+            // Dropdown para seleccionar filtro
             ExposedDropdownMenuBox(
-                expanded = expandedMeses,
-                onExpandedChange = { expandedMeses = !expandedMeses }
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
             ) {
                 TextField(
-                    value = selectedMeses,
+                    value = seleccion,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Meses") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedMeses) },
+                    label = { Text("Filtrar por edad") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
                 ExposedDropdownMenu(
-                    expanded = expandedMeses,
-                    onDismissRequest = { expandedMeses = false }
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
                 ) {
-                    opcionesMeses.forEach { opcion ->
+                    opciones.forEach { opcion ->
                         DropdownMenuItem(
                             text = { Text(opcion) },
                             onClick = {
-                                selectedMeses = opcion
-                                expandedMeses = false
+                                seleccion = opcion
+                                expanded = false
                             }
                         )
                     }
@@ -170,42 +148,37 @@ fun RecomendacionesBotones() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Dropdown Años
-            ExposedDropdownMenuBox(
-                expanded = expandedAnios,
-                onExpandedChange = { expandedAnios = !expandedAnios }
-            ) {
-                TextField(
-                    value = selectedAnios,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Años") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAnios) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
-                ExposedDropdownMenu(
-                    expanded = expandedAnios,
-                    onDismissRequest = { expandedAnios = false }
-                ) {
-                    opcionesAnios.forEach { opcion ->
-                        DropdownMenuItem(
-                            text = { Text(opcion) },
-                            onClick = {
-                                selectedAnios = opcion
-                                expandedAnios = false
-                            }
-                        )
+            // Lista filtrada de recomendaciones
+            LazyColumn {
+                items(recomendacionesFiltradas) { item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Edad: ${item.edad_meses_min} a ${item.edad_meses_max} meses",
+                                style = MaterialTheme.typography.labelLarge
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = item.contenido)
+                        }
                     }
                 }
             }
         }
     }
+
+
 }
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun GreetingPreview()  {
     AplicacionDeCuidadoDeNiñosTheme {
-        RecomendacionesBotones()
+        RecomendacionesScreen()
     }
 }
