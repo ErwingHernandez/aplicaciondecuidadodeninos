@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.aplicaciondecuidadodenios"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.aplicaciondecuidadodenios"
@@ -51,6 +51,11 @@ android {
 
 dependencies {
 
+    /*dependencias agregadas*/
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    /*dependencias que ya trae la app*/
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
