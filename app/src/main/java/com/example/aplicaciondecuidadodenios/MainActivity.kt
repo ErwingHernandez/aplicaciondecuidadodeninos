@@ -38,6 +38,18 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+/*Area de trabajo Karenia*/
+
+
+
+
+/*Area de trabajo Judith*/
+
+
+
+
+/*Area de trabajo Erwing*/
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
