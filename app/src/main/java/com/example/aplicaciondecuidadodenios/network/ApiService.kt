@@ -17,8 +17,13 @@ interface ApiService{
 
     //ControlCrecimiento
 
+    @GET("controles/{id}")
+    fun obtenerControlesPorNino(@Path("id") idNino: String): Call<List<ControlCrecimiento>>
 
-    //Recomendaciones nutricionales
+    // 🥗 Recomendaciones Nutricionales
+
+    @GET("recomendaciones")
+    fun obtenerRecomendaciones(): Call<List<Recomendacion>>
 
 }
 
