@@ -51,12 +51,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AplicacionDeCuidadoDeNiñosTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                RecomendacionesScreen()
             }
         }
     }
@@ -93,7 +88,8 @@ fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
         "0-6 meses",
         "6-9 meses",
         "9-12 meses",
-        "12-24 meses"
+        "12-24 meses",
+        "25+ meses" // ¡Importante añadir si tienes esta recomendación en tu JSON!
     )
 
     var expanded by remember { mutableStateOf(false) }
@@ -101,21 +97,40 @@ fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
 
     // Filtro basado en selección
     val recomendacionesFiltradas = when (seleccion) {
-        "0-6 meses" -> recomendaciones.filter { it.edad_meses_min >= 0 && it.edad_meses_max <= 6 }
-        "6-9 meses" -> recomendaciones.filter { it.edad_meses_min >= 6 && it.edad_meses_max <= 9 }
-        "9-12 meses" -> recomendaciones.filter { it.edad_meses_min >= 9 && it.edad_meses_max <= 12 }
-        "12-24 meses" -> recomendaciones.filter { it.edad_meses_min >= 12 && it.edad_meses_max <= 24}
-        else -> recomendaciones
+        "0-6 meses" -> recomendaciones.filter { item ->
+            item.edad_min_meses >= 0 && item.edad_max_meses <= 6
+        }
+        "6-9 meses" -> recomendaciones.filter { item ->
+            // Considera si quieres 6-8 exacto, o hasta 9 si hay ítems que terminan en 9
+            item.edad_min_meses >= 6 && item.edad_max_meses <= 9
+        }
+        "9-12 meses" -> recomendaciones.filter { item ->
+            // Considera si quieres 9-11 exacto, o hasta 12
+            item.edad_min_meses >= 9 && item.edad_max_meses <= 12
+        }
+        "12-24 meses" -> recomendaciones.filter { item ->
+            item.edad_min_meses >= 12 && item.edad_max_meses <= 24
+        }
+        "25+ meses" -> recomendaciones.filter { item ->
+            item.edad_min_meses >= 25 // Asume que cualquier cosa de 25 en adelante
+        }
+        else -> recomendaciones // Muestra "Todos"
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFFD6D6))
-    ){
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)) {
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = 40.dp,
+                    start = 16.dp,
+                    end = 16.dp)
+
+        ) {
 
             // Dropdown para seleccionar filtro
             ExposedDropdownMenuBox(
@@ -126,7 +141,7 @@ fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
                     value = seleccion,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Filtrar por edad") },
+                    label = { Text("Filtrar por meses") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
@@ -159,17 +174,38 @@ fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Edad: ${item.edad_meses_min} a ${item.edad_meses_max} meses",
+                                text = "Edad: ${item.edad_min_meses} a ${item.edad_max_meses} meses",
                                 style = MaterialTheme.typography.labelLarge
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(text = item.contenido)
+                            Text(text = item.recomendacion)
                         }
+                    }
+                }
+                // Si la lista está vacía, puedes mostrar un mensaje
+                if (recomendacionesFiltradas.isEmpty() && seleccion != "Todos") {
+                    item {
+                        Text(
+                            text = "No hay recomendaciones para esta edad.",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                    }
+                } else if (recomendacionesFiltradas.isEmpty() && seleccion == "Todos") {
+                    item {
+                        Text(
+                            text = "Cargando recomendaciones o no hay disponibles.",
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
                     }
                 }
             }
         }
     }
+
 
 
 }

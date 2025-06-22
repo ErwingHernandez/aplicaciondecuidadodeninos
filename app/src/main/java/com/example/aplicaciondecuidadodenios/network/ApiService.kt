@@ -9,7 +9,7 @@ import retrofit2.http.*
 interface ApiService{
 
     // Usuarios
-    @POST("usuarios")
+    @POST("/usuarios/create")
     fun registrarUsuario(@Body usuario: Usuario): Call<Usuario>
 
     // Niños
@@ -17,12 +17,12 @@ interface ApiService{
 
     //ControlCrecimiento
 
-    @GET("controles/{id}")
+    @GET("/controles/{id}")
     fun obtenerControlesPorNino(@Path("id") idNino: String): Call<List<ControlCrecimiento>>
 
     // 🥗 Recomendaciones Nutricionales
 
-    @GET("recomendaciones")
+    @GET("recomendaciones/")
     fun obtenerRecomendaciones(): Call<List<Recomendacion>>
 
 }
