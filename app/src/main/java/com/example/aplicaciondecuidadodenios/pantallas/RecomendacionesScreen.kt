@@ -1,3 +1,4 @@
+
 package com.example.aplicaciondecuidadodenios.pantallas
 
 import androidx.compose.foundation.background
@@ -170,9 +171,6 @@ fun RecomendacionesScreen(viewModel: RecomendacionesViewModel = viewModel()) {
 @Composable
 fun RecomendacionesScreenPreview() {
     AplicacionDeCuidadoDeNiñosTheme {
-
         RecomendacionesScreen()
-
-
     }
 }
