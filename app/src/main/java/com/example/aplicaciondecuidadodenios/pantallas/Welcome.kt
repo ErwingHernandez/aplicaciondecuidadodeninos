@@ -16,19 +16,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.aplicaciondecuidadodenios.ui.theme.AplicacionDeCuidadoDeNiñosTheme
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.*
+import com.example.aplicaciondecuidadodenios.data.UserManager
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
 @Composable
-fun WelcomeScreen(navController: NavController) { // Añadir parámetro NavController
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Imagen de fondo (asumiendo que tienes R.drawable.madre)
-        // Podrías ajustar contentScale y alpha para una mejor mezcla
+fun WelcomeScreen(navController: NavController, userManager: UserManager) {
+
+    val scope = rememberCoroutineScope()// Añadir parámetro NavController
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFFFD6D6))) {
+
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground), // Placeholder para tu imagen
+            painter = painterResource(id = R.drawable.img), // Placeholder para tu imagen
             contentDescription = "Ilustración",
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center)
-                .alpha(0.7f) // Ajustar transparencia si es necesario
+                .alpha(0.5f) // Ajustar transparencia si es necesario
         )
 
         // Contenido centrado
@@ -49,20 +56,28 @@ fun WelcomeScreen(navController: NavController) { // Añadir parámetro NavContr
                 text = "\"Acompañamos a tu hijo desde el primer suspiro hasta su independencia.\"", //
                 fontSize = 16.sp,
                 color = Color.DarkGray, // Cambiado a DarkGray para una mejor visibilidad
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center // Centrar texto
             )
             Button(
-                onClick = { navController.navigate("login") }, // Navegar a la ruta de login
+                onClick = {
+                    scope.launch {
+                        userManager.setFirstLaunchDone() // Esto se llama CUANDO se presiona el botón
+                    }
+                    navController.navigate("login") {
+                        popUpTo("welcome") { inclusive = true } // <-- MUY RECOMENDADO: Eliminar Welcome del back stack
+                    }
+                },
                 colors = ButtonDefaults.filledTonalButtonColors(
-                    containerColor = Color(0xFFD8BFD8), // Ajustar color a tu tema
+                    containerColor = Color(0xFFD8BFD8),
                     contentColor = Color.White
                 ),
                 modifier = Modifier
-                    .fillMaxWidth(0.6f) // Hacer el botón más ancho
+                    .fillMaxWidth(0.6f)
                     .height(50.dp)
             ) {
-                Text(text = "Empezar") //
+                Text(text = "Empezar")
             }
         }
     }
@@ -73,7 +88,7 @@ fun WelcomeScreen(navController: NavController) { // Añadir parámetro NavContr
 fun WelcomeScreenPreview() {
     AplicacionDeCuidadoDeNiñosTheme {
         // Para la vista previa, pasamos un NavController ficticio
-        WelcomeScreen(navController = rememberNavController())
+        //WelcomeScreen(navController = rememberNavController())
     }
 }
 

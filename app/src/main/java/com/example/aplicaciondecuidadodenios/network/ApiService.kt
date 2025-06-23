@@ -12,6 +12,9 @@ interface ApiService{
     @POST("usuarios/create/")
     fun registrarUsuario(@Body usuario: Usuario): Call<Usuario>
 
+    @POST("usuarios/login/")
+    fun loginUsuario(@Body loginRequest: LoginRequest): Call<Usuario>
+
     // Niños
 
     @GET("ninos/porusuario/{id}/")

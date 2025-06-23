@@ -63,6 +63,11 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended:<version>")
 
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
     /*dependencias que ya trae la app*/
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -74,7 +79,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.cronet.embedded)
     implementation(libs.androidx.espresso.core)
-    implementation(libs.androidx.navigation.compose.jvmstubs)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
