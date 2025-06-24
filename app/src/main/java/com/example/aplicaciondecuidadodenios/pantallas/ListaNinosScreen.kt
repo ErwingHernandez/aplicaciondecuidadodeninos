@@ -134,7 +134,7 @@ fun FilaDeCincoBotones(navController: NavController, usuarioId: String) {
         val items = listOf(
             NavItem("Inicio", R.drawable.home, "homeScreen"),
             NavItem("Agregar", R.drawable.add, "registrarNino/$usuarioId"),
-            NavItem("Gráficas", R.drawable.grafic, "control/$usuarioId"),
+            NavItem("Gráficas", R.drawable.grafic, "graficas/$usuarioId"),
             NavItem("Recomendaciones", R.drawable.book, "recomendaciones"),
             NavItem("Perfil", R.drawable.perfil, "#")
         )
