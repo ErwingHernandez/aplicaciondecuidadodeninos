@@ -35,6 +35,8 @@ import androidx.compose.runtime.mutableStateOf // ¡Necesitarás esto!
 import androidx.compose.runtime.setValue // ¡Necesitarás esto!
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -159,6 +161,18 @@ fun AppNavigation() {
         composable("registrarNino/{usuarioId}") { backStackEntry ->
             val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
             RegistrarNinoScreen(navController = navController, usuarioId = usuarioId)
+        }
+
+        composable(
+            route = "agregarControl/{childId}/{fechaNacimiento}",
+            arguments = listOf(
+                navArgument("childId") { type = NavType.StringType },
+                navArgument("fechaNacimiento") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val childId = backStackEntry.arguments?.getString("childId") ?: ""
+            val fechaNacimiento = backStackEntry.arguments?.getString("fechaNacimiento") ?: ""
+            AgregarControlCrecimientoScreen(navController, childId, fechaNacimiento)
         }
 
         /*Parte Judith*/

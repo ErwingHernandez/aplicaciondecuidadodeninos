@@ -34,6 +34,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.aplicaciondecuidadodenios.R
+import com.example.aplicaciondecuidadodenios.model.Nino
 import com.example.aplicaciondecuidadodenios.ui.theme.AplicacionDeCuidadoDeNiñosTheme
 import com.example.aplicaciondecuidadodenios.viewmodel.ListaNinosViewModel
 
@@ -88,10 +89,21 @@ fun ListaNinosScreen(navController: NavController, usuarioId: String, viewModel:
                             Text("Nombre: ${nino.nombre}", style = MaterialTheme.typography.titleMedium)
                             Text("Fecha nacimiento: ${nino.fecha_nacimiento}")
                             Text("Sexo: ${nino.sexo}")
+                            Button(
+                                onClick = {
+                                    navController.navigate("agregarControl/${nino._id}/${nino.fecha_nacimiento}")
+                                },
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
+                            ) {
+                                Text("Añadir IMC")
+                            }
+
                         }
                     }
                 }
             }
+
+
             FilaDeCincoBotones(navController = navController, usuarioId = usuarioId)
         }
     }
