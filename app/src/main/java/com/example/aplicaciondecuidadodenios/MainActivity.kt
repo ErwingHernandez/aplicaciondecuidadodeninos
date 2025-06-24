@@ -122,20 +122,7 @@ fun AppNavigation() {
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.padding(16.dp)
                     )
-                    //Parte Judith
-                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Button(
-                        onClick = {
-                            // Aquí iría tu ID real de usuario (por ejemplo desde DataStore si lo guardaste)
-                            navController.navigate("listaNinos/684a6da0925ea4cfbc0f2b03")
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
-                    ) {
-                        Text("Ver Hijos", color = MaterialTheme.colorScheme.primary)
-                    }
-
-                    //Parte Judith
                     Button(onClick = {
                         // Lanzar la corrutina dentro del CoroutineScope
                         scope.launch { // <--- ¡AQUÍ CAMBIA! Usa scope.launch
@@ -153,26 +140,17 @@ fun AppNavigation() {
 
         }
         /*Parte Judith*/
-        composable("listaNinos/{usuarioId}") { backStackEntry ->
-            val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-            ListaNinosScreen(navController = navController, usuarioId = usuarioId)
-        }
-
         composable("registrarNino/{usuarioId}") { backStackEntry ->
             val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
             RegistrarNinoScreen(navController = navController, usuarioId = usuarioId)
         }
 
-        composable(
-            route = "agregarControl/{childId}/{fechaNacimiento}",
-            arguments = listOf(
-                navArgument("childId") { type = NavType.StringType },
-                navArgument("fechaNacimiento") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val childId = backStackEntry.arguments?.getString("childId") ?: ""
-            val fechaNacimiento = backStackEntry.arguments?.getString("fechaNacimiento") ?: ""
-            AgregarControlCrecimientoScreen(navController, childId, fechaNacimiento)
+        composable("recomendaciones") {
+            RecomendacionesScreen()
+        }
+
+        composable("control") {
+            ControlCrecimientoScreen(usuarioId = "usuarioID")
         }
 
         /*Parte Judith*/
