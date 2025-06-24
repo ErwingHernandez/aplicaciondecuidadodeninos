@@ -31,14 +31,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.aplicaciondecuidadodenios.R
 import com.example.aplicaciondecuidadodenios.ui.theme.AplicacionDeCuidadoDeNiñosTheme
 import com.example.aplicaciondecuidadodenios.viewmodel.ListaNinosViewModel
 
 @Composable
-fun ListaNinosScreen(usuarioId: String, viewModel: ListaNinosViewModel = viewModel()) {
+fun ListaNinosScreen(navController: NavController, usuarioId: String, viewModel: ListaNinosViewModel = viewModel()) {
     val listaNinos by viewModel.ninos.collectAsState()
     val error by viewModel.error.collectAsState()
+
 
     // Llamar al cargar la pantalla
     LaunchedEffect(usuarioId) {
@@ -89,14 +92,14 @@ fun ListaNinosScreen(usuarioId: String, viewModel: ListaNinosViewModel = viewMod
                     }
                 }
             }
-            FilaDeCincoBotones()
+            FilaDeCincoBotones(navController = navController, usuarioId = usuarioId)
         }
     }
 
 }
 
 @Composable
-fun FilaDeCincoBotones() {
+fun FilaDeCincoBotones(navController: NavController, usuarioId: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,7 +115,7 @@ fun FilaDeCincoBotones() {
                 Text("Btn")
             }
         Button(
-            onClick = { /* Acción del botón */ },
+            onClick = { navController.navigate("registrarNino/$usuarioId") },
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 4.dp)
@@ -149,8 +152,12 @@ fun FilaDeCincoBotones() {
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ListaNinosAScreenPreview(){
+fun ListaNinosAScreenPreview() {
     AplicacionDeCuidadoDeNiñosTheme {
-        ListaNinosScreen(usuarioId = "")
+        val navController = rememberNavController()
+        ListaNinosScreen(
+            navController = navController,
+            usuarioId = "6859bd0624c87f947ed748ad"
+        )
     }
 }

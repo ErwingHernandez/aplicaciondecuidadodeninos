@@ -30,5 +30,10 @@ interface ApiService{
     @GET("recomendaciones/")
     fun obtenerRecomendaciones(): Call<List<Recomendacion>>
 
+    @POST("ninos/")
+    fun registrarNino(@Body nuevoNino: Nino): Call<Nino>
+
+
+
 }
 

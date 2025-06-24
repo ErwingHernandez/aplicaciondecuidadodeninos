@@ -132,6 +132,7 @@ fun AppNavigation() {
                     ) {
                         Text("Ver Hijos", color = MaterialTheme.colorScheme.primary)
                     }
+
                     //Parte Judith
                     Button(onClick = {
                         // Lanzar la corrutina dentro del CoroutineScope
@@ -152,8 +153,15 @@ fun AppNavigation() {
         /*Parte Judith*/
         composable("listaNinos/{usuarioId}") { backStackEntry ->
             val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-            ListaNinosScreen(usuarioId = usuarioId)
+            ListaNinosScreen(navController = navController, usuarioId = usuarioId)
         }
+
+        composable("registrarNino/{usuarioId}") { backStackEntry ->
+            val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+            RegistrarNinoScreen(navController = navController, usuarioId = usuarioId)
+        }
+
+        /*Parte Judith*/
     }
 }
 
