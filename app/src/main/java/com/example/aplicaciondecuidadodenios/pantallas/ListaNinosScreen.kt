@@ -129,14 +129,14 @@ fun ListaDeNinos(
 
 @Composable
 fun FilaDeCincoBotones(navController: NavController, usuarioId: String) {
-    Column(modifier = Modifier.fillMaxSize() .padding(0.dp, 60.dp),
+    Column(modifier = Modifier.fillMaxSize() .padding(30.dp, 0.dp, 30.dp, 60.dp),
         verticalArrangement = Arrangement.Bottom) {
         val items = listOf(
             NavItem("Inicio", R.drawable.home, "homeScreen"),
             NavItem("Agregar", R.drawable.add, "registrarNino/$usuarioId"),
-            NavItem("Gráficas", R.drawable.grafic, "control"),
+            NavItem("Gráficas", R.drawable.grafic, "control/$usuarioId"),
             NavItem("Recomendaciones", R.drawable.book, "recomendaciones"),
-            NavItem("Perfil", R.drawable.perfil)
+            NavItem("Perfil", R.drawable.perfil, "#")
         )
 
         Row(
@@ -164,7 +164,7 @@ fun FilaDeCincoBotones(navController: NavController, usuarioId: String) {
     }
 }
 
-data class NavItem(val label: String, val icon: Int)
+data class NavItem(val label: String, val icon: Int, val ruta: String) {}
 
 
 @Preview(showBackground = true, showSystemUi = true)

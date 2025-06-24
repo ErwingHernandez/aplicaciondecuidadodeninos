@@ -149,9 +149,11 @@ fun AppNavigation() {
             RecomendacionesScreen()
         }
 
-        composable("control") {
-            ControlCrecimientoScreen(usuarioId = "usuarioID")
+        composable("control/{usuarioId}") { backStackEntry ->
+            val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+            ControlCrecimientoScreen(usuarioId = usuarioId)
         }
+
 
         /*Parte Judith*/
     }
