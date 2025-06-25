@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -65,13 +66,30 @@ fun RegistrarNinoScreen(navController: NavController, usuarioId: String) {
                 value = primerNombre,
                 onValueChange = { primerNombre = it },
                 label = { Text("Primer Nombre") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = segundoNombre,
                 onValueChange = { segundoNombre = it },
                 label = { Text("Segundo Nombre") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ), shape = RoundedCornerShape(12.dp)
             )
         }
 
@@ -83,13 +101,29 @@ fun RegistrarNinoScreen(navController: NavController, usuarioId: String) {
                 value = primerApellido,
                 onValueChange = { primerApellido = it },
                 label = { Text("Primer Apellido") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ), shape = RoundedCornerShape(12.dp)
             )
             OutlinedTextField(
                 value = segundoApellido,
                 onValueChange = { segundoApellido = it },
                 label = { Text("Segundo Apellido") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ), shape = RoundedCornerShape(12.dp)
             )
         }
 
@@ -104,7 +138,15 @@ fun RegistrarNinoScreen(navController: NavController, usuarioId: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { showDatePicker = true },
-            readOnly = true
+            readOnly = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                disabledBorderColor = Color.White
+            ), shape = RoundedCornerShape(12.dp)
         )
 
         if (showDatePicker) {
@@ -147,7 +189,15 @@ fun RegistrarNinoScreen(navController: NavController, usuarioId: String) {
                     value = peso,
                     onValueChange = { peso = it },
                     label = { Text("Peso") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.White,
+                        disabledBorderColor = Color.White
+                    ), shape = RoundedCornerShape(12.dp)
                 )
             }
 
@@ -156,7 +206,15 @@ fun RegistrarNinoScreen(navController: NavController, usuarioId: String) {
                     value = talla,
                     onValueChange = { talla = it },
                     label = { Text("Talla") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        disabledContainerColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.White,
+                        disabledBorderColor = Color.White
+                    ), shape = RoundedCornerShape(12.dp)
                 )
             }
         }
@@ -226,7 +284,15 @@ fun DropdownSelector(
             label = { Text(label) },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                disabledBorderColor = Color.White
+            ), shape = RoundedCornerShape(12.dp)
         )
 
         DropdownMenu(
