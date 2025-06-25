@@ -15,6 +15,11 @@ interface ApiService{
     @POST("usuarios/login/")
     fun loginUsuario(@Body loginRequest: LoginRequest): Call<LoginApiResponse>
 
+    @GET("usuarios/one/{id}")
+    fun obtenerusuarioporid(@Path("id") userId: String): Call<Usuario>
+
+    @PUT("usuarios/{id}")
+    fun actualizarusurio(@Path("id") userId: String, @Body usuario: Usuario): Call<Usuario>
 
     //ControlCrecimiento
 

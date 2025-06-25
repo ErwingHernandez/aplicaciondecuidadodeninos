@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.Text
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -144,6 +145,29 @@ fun AppNavigation() {
                     childId = ninoId, // Pasamos ninoId como childId
                     fechaNacimiento = fechaNacimiento
                 )
+            }
+
+            composable(
+                route = "perfilScreen/{usuarioId}", // Ruta para la pantalla de visualización de perfil
+                arguments = listOf(navArgument("usuarioId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+                Log.d("AppNavigation", "Navigating to DatosPerfilScreen with usuarioId: $usuarioId")
+                DatosPerfilScreen(navController = navController, usuarioId = usuarioId, userManager = userManager)
+            }
+
+            composable(
+                route = "editarPerfil/{usuarioId}", // <--- Ruta con argumento
+                arguments = listOf(navArgument("usuarioId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val usuarioId = backStackEntry.arguments?.getString("usuarioId")
+                if (usuarioId != null) {
+                    // Llama a EditarPerfilScreen pasando el usuarioId, no el objeto Usuario completo
+                    EditarPerfilScreen(navController = navController, usuarioId = usuarioId) // <--- Pasa el ID
+                } else {
+                    // Manejar el caso de que el ID sea nulo (podrías volver atrás o mostrar un error)
+                    Text("Error: ID de usuario no proporcionado para edición.")
+                }
             }
         }
     }

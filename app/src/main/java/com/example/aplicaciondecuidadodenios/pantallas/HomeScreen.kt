@@ -60,6 +60,7 @@ fun BodyContent(navController: NavController, usuarioId: String, viewModel: List
     val listaNinos by viewModel.ninos.collectAsState()
     val error by viewModel.error.collectAsState()
 
+
     LaunchedEffect(usuarioId) {
 
         if (usuarioId.isNotBlank()) {
@@ -155,7 +156,6 @@ fun FilaDeCincoBotones(navController: NavController, usuarioId: String) {
         .padding(horizontal = 30.dp, vertical = 0.dp),
         verticalArrangement = Arrangement.Bottom) {
         val items = listOf(
-            NavItem("Inicio", R.drawable.home, "homeScreen/$usuarioId"), // Ahora incluye el usuarioId
             NavItem("Agregar", R.drawable.add, "registrarNino/$usuarioId"),
             NavItem("Gráficas", R.drawable.grafic, "graficas/$usuarioId"),
             NavItem("Recomendaciones", R.drawable.book, "recomendaciones"),
