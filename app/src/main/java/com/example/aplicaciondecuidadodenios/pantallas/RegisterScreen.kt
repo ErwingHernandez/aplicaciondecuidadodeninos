@@ -140,7 +140,16 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(nombreFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                singleLine = true,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                    )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -152,7 +161,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(emailFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -171,7 +190,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(passwordFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -190,7 +219,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(confirmPasswordFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -208,7 +247,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+
+                        unfocusedBorderColor = Color.Black,
+                        unfocusedLabelColor = Color.Black,
+                    )
                 )
 
                 ExposedDropdownMenu(
@@ -234,7 +283,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 label = { Text("Teléfono (Opcional)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -243,7 +302,17 @@ fun RegisterScreen(navController: NavController, userManager: UserManager) {
                 onValueChange = { direccion = it },
                 label = { Text("Dirección (Opcional)") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                )
             )
             Spacer(modifier = Modifier.height(24.dp))
 

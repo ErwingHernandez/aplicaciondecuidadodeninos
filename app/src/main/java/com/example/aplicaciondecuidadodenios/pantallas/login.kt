@@ -3,7 +3,6 @@ package com.example.aplicaciondecuidadodenios.pantallas
 
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -19,15 +18,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.aplicaciondecuidadodenios.R
 import com.example.aplicaciondecuidadodenios.data.UserManager
 import com.example.aplicaciondecuidadodenios.model.LoginRequest
 import com.example.aplicaciondecuidadodenios.model.Usuario
@@ -37,6 +33,10 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.MaterialTheme
+
 
 enum class LoginErrorType {
     NONE,
@@ -120,7 +120,18 @@ fun LoginScreen(navController: NavController, userManager: UserManager) { // <--
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(emailFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -138,8 +149,23 @@ fun LoginScreen(navController: NavController, userManager: UserManager) { // <--
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(passwordFocusRequester), // Asocia el FocusRequester
-                singleLine = true
+                    .focusRequester(passwordFocusRequester),
+
+                singleLine = true,
+
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+
+                    unfocusedTrailingIconColor = Color.DarkGray,
+                    focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                    )
             )
             Spacer(modifier = Modifier.height(24.dp))
 

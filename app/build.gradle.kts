@@ -68,6 +68,9 @@ dependencies {
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    implementation(platform("androidx.compose:compose-bom:2023.08.00")) // O una versión más reciente
+    implementation("androidx.compose.material3:material3")
+
     /*dependencias que ya trae la app*/
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
