@@ -1,5 +1,5 @@
 [versions]
-agp = "8.8.2"
+agp = "8.6.0"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -15,7 +15,8 @@ lifecycleViewmodelCompose = "2.6.1"
 animationCoreLint = "1.8.3"
 composeMaterialIconsExtended = "1.6.8"
 navigationCompose = "2.9.0"
-navigationComposeJvmstubs = "2.9.0" # Usa una versión estable
+navigationComposeJvmstubs = "2.9.0"
+navigationComposeAndroid = "2.9.0" # Usa una versión estable
 
 
 [libraries]
@@ -40,6 +41,7 @@ cronet-embedded = { group = "org.chromium.net", name = "cronet-embedded", versio
 # androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "navigation-compose-jvmstubs", version.ref = "navigationComposeJvmstubs" } # ELIMINADO
 androidx-animation-core-lint = { group = "androidx.compose.animation", name = "animation-core-lint", version.ref = "animationCoreLint" }
 androidx-navigation-compose-jvmstubs = { group = "androidx.navigation", name = "navigation-compose-jvmstubs", version.ref = "navigationComposeJvmstubs" }
+androidx-navigation-compose-android = { group = "androidx.navigation", name = "navigation-compose-android", version.ref = "navigationComposeAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

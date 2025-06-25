@@ -13,28 +13,30 @@ interface ApiService{
     fun registrarUsuario(@Body usuario: Usuario): Call<Usuario>
 
     @POST("usuarios/login/")
-    fun loginUsuario(@Body loginRequest: LoginRequest): Call<Usuario>
+    fun loginUsuario(@Body loginRequest: LoginRequest): Call<LoginApiResponse>
 
-    // Niños
-
-    @GET("ninos/porusuario/{id}/")
-    fun obtenerNinosPorUsuario(@Path("id") usuario_id: String): Call<List<Nino>>
 
     //ControlCrecimiento
 
     @GET("controlcrecimiento/pornino/{id}")
     fun obtenerControlesPorNino(@Path("id") child_id: String): Call<List<ControlCrecimiento>>
 
+    @POST("controlcrecimiento/create/")
+    fun registrarControl(@Body control: ControlCrecimiento): Call<ControlCrecimiento>
+
     // 🥗 Recomendaciones Nutricionales
 
     @GET("recomendaciones/")
     fun obtenerRecomendaciones(): Call<List<Recomendacion>>
 
-    @POST("ninos/")
+    // Niños
+
+    @GET("ninos/porusuario/{id}/")
+    fun obtenerNinosPorUsuario(@Path("id") usuario_id: String): Call<List<Nino>>
+
+    @POST("ninos/create/")
     fun registrarNino(@Body nuevoNino: Nino): Call<Nino>
 
-    @POST("controlcrecimiento/create/")
-    fun registrarControl(@Body control: ControlCrecimiento): Call<ControlCrecimiento>
 
 }
 

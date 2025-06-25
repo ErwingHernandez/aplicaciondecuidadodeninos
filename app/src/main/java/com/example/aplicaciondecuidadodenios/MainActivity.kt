@@ -1,27 +1,16 @@
 package com.example.aplicaciondecuidadodenios
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,18 +19,20 @@ import com.example.aplicaciondecuidadodenios.ui.theme.AplicacionDeCuidadoDeNiño
 import com.example.aplicaciondecuidadodenios.pantallas.*
 import com.example.aplicaciondecuidadodenios.data.UserManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.mutableStateOf // ¡Necesitarás esto!
-import androidx.compose.runtime.setValue // ¡Necesitarás esto!
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+
+import com.example.aplicaciondecuidadodenios.pantallas.AgregarControlCrecimientoScreen
+
+
 
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -54,112 +45,113 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val userManager = remember { UserManager(context) }
 
-    // Recopila el estado de DataStore como State<T> para usar en Compose
-    var isLoading by remember { mutableStateOf(true) }
-    var isFirstLaunchState by remember { mutableStateOf(true) } // Estado inicial
-    var isLoggedInState by remember { mutableStateOf(false) } // Estado inicial
+    // Estados para la carga inicial y la decisión de la ruta de inicio
+    var isReadyToNavigate by remember { mutableStateOf(false) }
+    var initialRoute by remember { mutableStateOf<String?>(null) } // Null hasta que se decida la ruta
 
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        // Espera a que DataStore emita su primer valor real para isFirstLaunch
-        isFirstLaunchState = userManager.isFirstLaunch.first()
-        // Espera a que DataStore emita su primer valor real para isLoggedIn
-        isLoggedInState = userManager.isLoggedIn.first()
-        isLoading = false // Marca que la carga ha terminado
-        Log.d("AppNavigation", "DataStore loaded: isFirstLaunchState=$isFirstLaunchState, isLoggedInState=$isLoggedInState")
-    }
+        // Observa los cambios en isLoggedIn y userId para reaccionar a los logins/logouts
+        // NOTA: userManager.isLoggedIn ahora es un Flow<Boolean>
+        // Y userManager.userId ahora será un Flow<String?>
+        userManager.isLoggedIn.collect { loggedIn ->
+            val userId = userManager.userId.first() // Obtener el ID más reciente
+            Log.d("AppNavigation", "isLoggedIn change detected: $loggedIn, userId: $userId")
 
-
-    // Agrega logs aquí para ver los valores
-    Log.d("AppNavigation", "Current states: isLoading=$isLoading, isFirstLaunchState=$isFirstLaunchState, isLoggedInState=$isLoggedInState")
-
-    // Determina la pantalla de inicio basada en el estado
-    val startDestination = if (isLoading) {
-        "splash" // Muestra el splash mientras carga
-    } else if (isFirstLaunchState) { // Usa el estado que ya cargó
-        "welcome"
-    } else if (isLoggedInState) { // Usa el estado que ya cargó
-        "homeScreen"
-    } else {
-        "login"
-    }
-
-
-    NavHost(navController = navController, startDestination = startDestination) {
-        composable("splash") {
-            Log.d("AppNavigation", "Navigating to SplashScreen")
-            SplashScreen()
-        }
-        composable("welcome") {
-            Log.d("AppNavigation", "Navigating to WelcomeScreen")
-            WelcomeScreen(navController = navController, userManager = userManager)
-        }
-        composable("login") {
-            Log.d("AppNavigation", "Navigating to LoginScreen")
-            LoginScreen(navController = navController, userManager = userManager)
-        }
-        composable("register") {
-            Log.d("AppNavigation", "Navigating to RegisterScreen")
-            RegisterScreen(navController = navController, userManager = userManager)
-        }
-        composable("homeScreen") {
-
-            Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.primary) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    androidx.compose.material3.Text(
-                        text = "¡Bienvenido al Home!",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(16.dp)
-                    )
-
-                    Button(onClick = {
-                        // Lanzar la corrutina dentro del CoroutineScope
-                        scope.launch { // <--- ¡AQUÍ CAMBIA! Usa scope.launch
-                            userManager.logout() // Llama a la suspend fun
-                            // Navegar a Login después de cerrar sesión
-                            navController.navigate("login") {
-                                popUpTo("homeScreen") { inclusive = true }
-                            }
-                        }
-                    }) {
-                        androidx.compose.material3.Text("Cerrar Sesión")
-                    }
+            if (loggedIn && userId != null) {
+                initialRoute = "homeScreen/$userId"
+                Log.d("AppNavigation", "Usuario logueado: Navegando a homeScreen/$userId")
+            } else {
+                // Si no está logueado o el ID es nulo, verifica si es el primer lanzamiento
+                val firstLaunch = userManager.isFirstLaunch.first()
+                if (firstLaunch) {
+                    initialRoute = "welcome"
+                    Log.d("AppNavigation", "Primer lanzamiento: Navegando a welcome")
+                } else {
+                    initialRoute = "login"
+                    Log.d("AppNavigation", "No logueado: Navegando a login")
                 }
             }
-
+            isReadyToNavigate = true // Marca que la lógica inicial de navegación está lista
         }
-        /*Parte Judith*/
-        composable("registrarNino/{usuarioId}") { backStackEntry ->
-            val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-            RegistrarNinoScreen(navController = navController, usuarioId = usuarioId)
+    }
+
+    // Muestra un SplashScreen o indicador de carga mientras se decide la ruta inicial
+    if (!isReadyToNavigate || initialRoute == null) {
+        SplashScreen() // Puedes usar un indicador de carga más simple aquí si quieres, o directamente un CircularProgressIndicator
+    } else {
+        NavHost(navController = navController, startDestination = initialRoute!!) {
+            composable("splash") {
+                Log.d("AppNavigation", "Navigating to SplashScreen")
+                SplashScreen()
+            }
+            composable("welcome") {
+                Log.d("AppNavigation", "Navigating to WelcomeScreen")
+                WelcomeScreen(navController = navController, userManager = userManager)
+            }
+            composable("login") {
+                Log.d("AppNavigation", "Navigating to LoginScreen")
+                LoginScreen(navController = navController, userManager = userManager)
+            }
+            composable("register") {
+                Log.d("AppNavigation", "Navigating to RegisterScreen")
+                RegisterScreen(navController = navController, userManager = userManager)
+            }
+
+            composable(
+                route = "homeScreen/{usuarioId}",
+                arguments = listOf(navArgument("usuarioId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+                Log.d("AppNavigation", "Navigating to HomeScreen with usuarioId: $usuarioId")
+                HomeScreen(navController = navController, usuarioId = usuarioId)
+            }
+
+            composable("registrarNino/{usuarioId}") { backStackEntry ->
+                val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+                RegistrarNinoScreen(navController = navController, usuarioId = usuarioId)
+            }
+
+            composable("recomendaciones") {
+                RecomendacionesScreen()
+            }
+
+            composable("graficas/{usuarioId}") { backStackEntry ->
+                val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
+                ControlCrecimientoScreen(usuarioId = usuarioId)
+            }
+
+            // AHORA LLAMAMOS AL COMPOSABLE CORRECTO: AgregarControlCrecimientoScreen
+            composable(
+                route = "agregarControl/{ninoId}/{fechaNacimiento}",
+                arguments = listOf(
+                    navArgument("ninoId") { type = NavType.StringType },
+                    navArgument("fechaNacimiento") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val ninoId = backStackEntry.arguments?.getString("ninoId") ?: ""
+                val fechaNacimiento = backStackEntry.arguments?.getString("fechaNacimiento") ?: ""
+                AgregarControlCrecimientoScreen(
+                    navController = navController,
+                    childId = ninoId, // Pasamos ninoId como childId
+                    fechaNacimiento = fechaNacimiento
+                )
+            }
         }
-
-        composable("recomendaciones") {
-            RecomendacionesScreen()
-        }
-
-        composable("graficas/{usuarioId}") { backStackEntry ->
-            val usuarioId = backStackEntry.arguments?.getString("usuarioId") ?: ""
-            ControlCrecimientoScreen(usuarioId = usuarioId)
-        }
-
-
-        /*Parte Judith*/
     }
 }
 
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun GreetingPreview()  {

@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey // ¡IMPORTANTE: Nueva importación!
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -21,7 +22,7 @@ class UserManager(context: Context) {
     private object PreferencesKeys {
         val IS_FIRST_LAUNCH = booleanPreferencesKey("is_first_launch")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
-        // Podrías añadir más claves aquí, como el ID del usuario, etc.
+        val USER_ID = stringPreferencesKey("user_id") // ¡NUEVA CLAVE!
     }
 
     // --- Métodos para la primera apertura ---
@@ -48,20 +49,36 @@ class UserManager(context: Context) {
             preferences[PreferencesKeys.IS_LOGGED_IN] ?: false // Por defecto es false si no existe
         }
 
-    // Marcar que el usuario ha iniciado sesión
-    suspend fun login() {
-        Log.d("UserManagerDebug", "login() se ha llamado!")
+    // Obtener el ID del usuario logueado (¡NUEVA PROPIEDAD!)
+    val userId: Flow<String?> = dataStore.data
+        .map { preferences ->
+            preferences[PreferencesKeys.USER_ID] // Puede ser nulo si no hay ID guardado
+        }
+
+    // Marcar que el usuario ha iniciado sesión Y guardar su ID (¡MÉTODO MODIFICADO!)
+    suspend fun login(id: String) { // Ahora recibe el ID como parámetro
+        Log.d("UserManagerDebug", "login() se ha llamado! ID: $id")
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_LOGGED_IN] = true
+            preferences[PreferencesKeys.USER_ID] = id // Guarda el ID del usuario
         }
     }
 
-    // Marcar que el usuario ha cerrado sesión
+    // Marcar que el usuario ha cerrado sesión (¡MÉTODO MODIFICADO!)
     suspend fun logout() {
         Log.d("UserManagerDebug", "logout() se ha llamado!")
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.IS_LOGGED_IN] = false
-            // Opcional: borrar cualquier otro dato de sesión si lo hubieras guardado
+            preferences.remove(PreferencesKeys.USER_ID) // Limpiar el ID también al cerrar sesión
+        }
+    }
+
+    // Puedes añadir una función específica para guardar el ID si el 'login' ya lo hace.
+    // O si en algún otro punto de tu app necesitas solo guardar el ID sin cambiar el estado de login.
+    // Si 'login' siempre guarda el ID, este no es estrictamente necesario, pero es bueno tener la opción.
+    suspend fun saveUserId(id: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.USER_ID] = id
         }
     }
 }

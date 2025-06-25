@@ -17,7 +17,7 @@ class ListaNinosViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun cargarNinos(usuarioId: String) {
+    fun obtenerNinosPorUsuario(usuarioId: String) {
         ApiClient.apiService.obtenerNinosPorUsuario(usuarioId)
             .enqueue(object : Callback<List<Nino>> {
                 override fun onResponse(call: Call<List<Nino>>, response: Response<List<Nino>>) {

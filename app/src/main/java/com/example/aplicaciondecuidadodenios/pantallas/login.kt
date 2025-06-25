@@ -36,6 +36,7 @@ import retrofit2.Response
 
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.MaterialTheme
+import com.example.aplicaciondecuidadodenios.model.LoginApiResponse
 
 
 enum class LoginErrorType {
@@ -171,60 +172,63 @@ fun LoginScreen(navController: NavController, userManager: UserManager) { // <--
 
             Button(
                 onClick = {
-                    currentErrorType = LoginErrorType.NONE // Resetear el error
-                    currentErrorMessage = null // Resetear el mensaje
-
-                    // --- VALIDACIÓN DE CAMPOS VACÍOS ---
-                    if (email.isBlank()) {
-                        currentErrorType = LoginErrorType.REQUIRED_FIELDS
-                        currentErrorMessage = "El correo electrónico es obligatorio."
-                        return@Button
-                    }
-                    if (password.isBlank()) {
-                        currentErrorType = LoginErrorType.REQUIRED_FIELDS
-                        currentErrorMessage = "La contraseña es obligatoria."
-                        return@Button
-                    }
-                    // ------------------------------------
-
                     val loginRequest = LoginRequest(email, password)
-                    ApiClient.apiService.loginUsuario(loginRequest).enqueue(object : Callback<Usuario> {
-                        override fun onResponse(call: Call<Usuario>, response: Response<Usuario>) {
+                    ApiClient.apiService.loginUsuario(loginRequest).enqueue(object : Callback<LoginApiResponse> {
+                        override fun onResponse(call: Call<LoginApiResponse>, response: Response<LoginApiResponse>) {
                             if (response.isSuccessful) {
-                                val user = response.body()
-                                Log.d("LoginScreen", "Inicio de sesión exitoso: $user")
-                                coroutineScope.launch { // <--- Usa el scope para DataStore
-                                    userManager.login() // <--- ¡Marca como logueado!
-                                }
-                                navController.navigate("homeScreen") {
-                                    popUpTo("login") { inclusive = true }
+                                val loginResponse = response.body() // Ahora es de tipo LoginApiResponse
+
+                                // ¡ACCESO AL ID ANIDADO!
+                                // userResponse?.usuario?._id
+                                if (loginResponse != null && loginResponse.usuario._id != null) {
+                                    val userId = loginResponse.usuario._id // <-- ¡Accede al ID del usuario anidado!
+
+                                    Log.d("LoginScreen", "Inicio de sesión exitoso. ID de usuario: $userId")
+                                    Log.d("LoginScreen", "Cuerpo completo de la respuesta de API: $loginResponse") // Muestra la respuesta completa
+
+                                    coroutineScope.launch {
+                                        userManager.login(userId)
+                                    }
+
+                                    Log.d("LoginScreen", "Estado de login guardado. AppNavigation manejará la navegación.")
+                                    currentErrorType = LoginErrorType.NONE
+                                    currentErrorMessage = null
+                                    Toast.makeText(context, "¡Inicio de sesión exitoso!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val msg = "Login exitoso desde API, pero datos de usuario (ID) incompletos. Respuesta: $loginResponse"
+                                    Log.e("LoginScreen", msg)
+                                    currentErrorType = LoginErrorType.UNKNOWN_ERROR
+                                    currentErrorMessage = msg
+                                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                                 }
                             } else {
                                 val errorBody = response.errorBody()?.string()
-                                Log.e("LoginScreen", "Inicio de sesión fallido: ${response.code()} - $errorBody")
+                                val code = response.code()
+                                Log.e("LoginScreen", "Error en el login. Código: $code, Cuerpo del error: $errorBody")
 
-                                when (response.code()) {
-                                    401 -> { // Unauthorized - Credenciales incorrectas
+                                when (code) {
+                                    401 -> {
                                         currentErrorType = LoginErrorType.INVALID_CREDENTIALS
-                                        currentErrorMessage = "Credenciales incorrectas. Verifique su correo y contraseña."
+                                        currentErrorMessage = "Credenciales inválidas. Por favor, verifica tu correo y contraseña."
                                     }
-                                    404 -> { // Not Found - Usuario no encontrado (aunque 401 es más común para esto)
+                                    404 -> {
                                         currentErrorType = LoginErrorType.USER_NOT_FOUND
-                                        currentErrorMessage = "Usuario no encontrado."
+                                        currentErrorMessage = "Usuario no encontrado. Registra una nueva cuenta."
                                     }
                                     else -> {
                                         currentErrorType = LoginErrorType.UNKNOWN_ERROR
-                                        currentErrorMessage = "Error al iniciar sesión: ${response.message()}."
-
+                                        currentErrorMessage = "Error desconocido al iniciar sesión. Código: $code"
                                     }
                                 }
+                                Toast.makeText(context, currentErrorMessage, Toast.LENGTH_LONG).show()
                             }
                         }
 
-                        override fun onFailure(call: Call<Usuario>, t: Throwable) {
+                        override fun onFailure(call: Call<LoginApiResponse>, t: Throwable) { // <-- ¡Cambio aquí!
                             Log.e("LoginScreen", "Error de red durante el inicio de sesión", t)
                             currentErrorType = LoginErrorType.NETWORK_ERROR
-                            currentErrorMessage = "Error de red: ${t.message}"
+                            currentErrorMessage = "Error de red: ${t.message}. Revisa tu conexión a internet."
+                            Toast.makeText(context, currentErrorMessage, Toast.LENGTH_LONG).show()
                         }
                     })
                 },

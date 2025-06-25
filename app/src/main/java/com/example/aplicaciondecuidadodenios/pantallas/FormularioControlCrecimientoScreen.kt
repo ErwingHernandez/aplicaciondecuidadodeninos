@@ -1,19 +1,22 @@
 package com.example.aplicaciondecuidadodenios.pantallas
 
-import android.icu.util.Calendar
+
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -28,23 +31,39 @@ import com.example.aplicaciondecuidadodenios.ui.theme.AplicacionDeCuidadoDeNiño
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+
 
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class) // Necesario para rememberDatePickerState y DatePickerDialog
 @Composable
 fun AgregarControlCrecimientoScreen(
     navController: NavController,
     childId: String,
-    fechaNacimiento: String
+    fechaNacimiento: String // Esta es la fecha de nacimiento del niño (esperado YYYY-MM-DD)
 ) {
     var peso by remember { mutableStateOf("") }
     var talla by remember { mutableStateOf("") }
-    var fecha by remember { mutableStateOf("") }
-    var showDate by remember { mutableStateOf(false) }
+    var fechaRegistroDisplay by remember { mutableStateOf("") } // Fecha para mostrar en la UI (dd/mm/yyyy)
+    var fechaRegistroBackend by remember { mutableStateOf("") } // Fecha para enviar al backend (YYYY-MM-DD)
+    var showDatePicker by remember { mutableStateOf(false) }
     var observaciones by remember { mutableStateOf("") }
     val context = LocalContext.current
+
+    // Inicializa fechaRegistroDisplay y fechaRegistroBackend con la fecha actual al cargar
+    LaunchedEffect(Unit) {
+        val today = LocalDate.now()
+        val formatterDisplay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+        val formatterBackend = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+        fechaRegistroDisplay = today.format(formatterDisplay)
+        fechaRegistroBackend = today.format(formatterBackend)
+    }
 
     Column(
         modifier = Modifier
@@ -58,74 +77,111 @@ fun AgregarControlCrecimientoScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(
-            value = peso,
-            onValueChange = { peso = it },
-            label = { Text("Peso (kg)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                disabledBorderColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
+            OutlinedTextField(
+                value = peso,
+                onValueChange = { newValue ->
+                    // Permitir solo números y un punto decimal
+                    if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                        peso = newValue
+                    }
+                },
+                label = { Text("Peso (kg)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
 
-        OutlinedTextField(
-            value = talla,
-            onValueChange = { talla = it },
-            label = { Text("Talla (cm)") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.weight(1f),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                disabledBorderColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
+            OutlinedTextField(
+                value = talla,
+                onValueChange = { newValue ->
+                    // Permitir solo números y un punto decimal
+                    if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                        talla = newValue
+                    }
+                },
+                label = { Text("Talla (cm)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    disabledBorderColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
         }
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Fecha de registro
-        OutlinedTextField(
-            value = fechaNacimiento,
-            onValueChange = {},
-            label = { Text(
-                "Fecha de registro",
-                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
-            ) },
-            placeholder = { Text("dd/mm/yyyy") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {showDate = true },
-            readOnly = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                disabledBorderColor = Color.White
+
+        OutlinedButton(
+            onClick = { showDatePicker = true },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color.Black
+            ),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                width = 1.dp,
+                brush = SolidColor(Color.White)
             ),
             shape = RoundedCornerShape(12.dp)
-        )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "Seleccionar fecha de registro"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = fechaRegistroDisplay,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
 
-        if (showDate) {
-            val datePicker = rememberDatePickerDialog(onDateSelected = {
-                fecha = it
-                showDate = false
-            }, onDismiss = {
-                showDate = false
-            })
-            datePicker()
+        if (showDatePicker) {
+            val dateState = rememberDatePickerState()
+            val confirmButton = @Composable {
+                Button(onClick = {
+                    dateState.selectedDateMillis?.let { millis ->
+                        val selectedDate = Instant.ofEpochMilli(millis)
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDate()
+                        val formatterDisplay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                        val formatterBackend = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+                        fechaRegistroDisplay = selectedDate.format(formatterDisplay)
+                        fechaRegistroBackend = selectedDate.format(formatterBackend)
+                    }
+                    showDatePicker = false
+                }) { Text("Aceptar") }
+            }
+            val dismissButton = @Composable {
+                OutlinedButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            }
+
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = confirmButton,
+                dismissButton = dismissButton
+            ) {
+                DatePicker(state = dateState)
+            }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -134,7 +190,8 @@ fun AgregarControlCrecimientoScreen(
             value = observaciones,
             onValueChange = { observaciones = it },
             label = { Text("Observaciones (opcional)") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(150.dp),
             maxLines = 5,
             singleLine = false,
@@ -155,15 +212,27 @@ fun AgregarControlCrecimientoScreen(
             onClick = {
                 val pesoKg = peso.toDoubleOrNull()
                 val tallaCm = talla.toDoubleOrNull()
-                if (pesoKg == null || tallaCm == null || tallaCm == 0.0) {
-                    Toast.makeText(context, "Verifica los datos", Toast.LENGTH_SHORT).show()
+
+                if (pesoKg == null || tallaCm == null || tallaCm <= 0.0) { // Talla no puede ser 0 o negativa
+                    Toast.makeText(context, "Por favor, ingresa valores válidos para peso y talla.", Toast.LENGTH_LONG).show()
+                    return@Button
+                }
+                if (fechaRegistroBackend.isBlank()) {
+                    Toast.makeText(context, "Por favor, selecciona una fecha de registro.", Toast.LENGTH_LONG).show()
                     return@Button
                 }
 
-                val imc = pesoKg / ((tallaCm / 100) * (tallaCm / 100))
-                val fechaActual = LocalDate.now().toString()
-                val edadMeses = calcularEdadEnMeses(fechaNacimiento, fechaActual)
 
+                val edadMeses = try {
+                    calcularEdadEnMeses(fechaNacimiento, fechaRegistroBackend)
+                } catch (e: DateTimeParseException) {
+                    Toast.makeText(context, "Error al calcular edad: Formato de fecha de nacimiento o registro inválido.", Toast.LENGTH_LONG).show()
+                    Log.e("AgregarControl", "Error parsing date for age calculation: ${e.message}")
+                    return@Button
+                }
+
+
+                val imc = pesoKg / ((tallaCm / 100) * (tallaCm / 100))
                 val alerta = when {
                     imc < 14.0 -> "¡IMC bajo!"
                     imc > 18.0 -> "¡IMC alto!"
@@ -172,8 +241,9 @@ fun AgregarControlCrecimientoScreen(
                 Toast.makeText(context, alerta, Toast.LENGTH_LONG).show()
 
                 val control = ControlCrecimiento(
+                    // _id se omite porque el backend lo genera
                     child_id = childId,
-                    fecha = fechaActual,
+                    fecha = fechaRegistroBackend, // Usa la fecha de registro formateada para la API
                     peso_kg = pesoKg,
                     talla_cm = tallaCm,
                     edad_meses = edadMeses,
@@ -190,12 +260,15 @@ fun AgregarControlCrecimientoScreen(
                             Toast.makeText(context, "Registro creado con éxito", Toast.LENGTH_SHORT).show()
                             navController.popBackStack()
                         } else {
-                            Toast.makeText(context, "Error: ${response.message()}", Toast.LENGTH_SHORT).show()
+                            val errorBody = response.errorBody()?.string()
+                            Toast.makeText(context, "Error: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
+                            Log.e("AgregarControl", "Error response: ${response.code()} - $errorBody")
                         }
                     }
 
                     override fun onFailure(call: Call<ControlCrecimiento>, t: Throwable) {
                         Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("AgregarControl", "Network error: ${t.message}", t)
                     }
                 })
             },
@@ -206,16 +279,32 @@ fun AgregarControlCrecimientoScreen(
         ) {
             Text("Guardar", color = Color.Black)
         }
-
     }
 }
 
-// 🔢 Cálculo de edad en meses desde fecha de nacimiento
+// Cálculo de edad en meses desde fecha de nacimiento
+
 @RequiresApi(Build.VERSION_CODES.O)
-fun calcularEdadEnMeses(fechaNacimiento: String, fechaActual: String): Int {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val nacimiento = LocalDate.parse(fechaNacimiento, formatter)
-    val actual = LocalDate.parse(fechaActual, formatter)
+fun calcularEdadEnMeses(fechaNacimiento: String, fechaActualRegistro: String): Int {
+
+
+    var nacimiento: LocalDate
+    try {
+
+        nacimiento = Instant.parse(fechaNacimiento)
+            .atZone(java.time.ZoneId.systemDefault()) // O ZoneOffset.UTC si sabes que es UTC
+            .toLocalDate()
+    } catch (e: DateTimeParseException) {
+
+        Log.e("calcularEdad", "Failed to parse fechaNacimiento as ISO Instant, trying ISO_LOCAL_DATE: ${fechaNacimiento}", e)
+        val formatterISO = DateTimeFormatter.ISO_LOCAL_DATE // Para YYYY-MM-DD
+        nacimiento = LocalDate.parse(fechaNacimiento, formatterISO)
+    }
+
+
+    val formatterRegistro = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val actual = LocalDate.parse(fechaActualRegistro, formatterRegistro)
+
     val periodo = Period.between(nacimiento, actual)
     return periodo.years * 12 + periodo.months
 }
@@ -229,7 +318,7 @@ fun PreviewAgregarControlCrecimientoScreen() {
 
     // Simulación de datos de prueba
     val fakeChildId = "123456"
-    val fakeFechaNacimiento = "2022-01-01" // 1 de enero de 2022
+    val fakeFechaNacimiento = "2022-01-01" // 1 de enero de 2022, formato YYYY-MM-DD
 
     AplicacionDeCuidadoDeNiñosTheme {
         AgregarControlCrecimientoScreen(
@@ -239,25 +328,3 @@ fun PreviewAgregarControlCrecimientoScreen() {
         )
     }
 }
-
-
-@Composable
-fun rememberDate(onDateSelected: (String) -> Unit, onDismiss: () -> Unit): @Composable () -> Unit {
-    val context = LocalContext.current
-    return {
-        val calendar = Calendar.getInstance()
-        android.app.DatePickerDialog(
-            context,
-            { _, year, month, dayOfMonth ->
-                val fecha = "%02d/%02d/%04d".format(dayOfMonth, month + 1, year)
-                onDateSelected(fecha)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        ).apply {
-            setOnDismissListener { onDismiss() }
-        }.show()
-    }
-}
-
