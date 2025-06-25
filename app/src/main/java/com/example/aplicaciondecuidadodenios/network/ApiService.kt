@@ -33,7 +33,8 @@ interface ApiService{
     @POST("ninos/")
     fun registrarNino(@Body nuevoNino: Nino): Call<Nino>
 
-
+    @POST("controlcrecimiento/create/")
+    fun registrarControl(@Body control: ControlCrecimiento): Call<ControlCrecimiento>
 
 }
 
