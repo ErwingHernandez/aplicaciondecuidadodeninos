@@ -65,221 +65,231 @@ fun AgregarControlCrecimientoScreen(
         fechaRegistroBackend = today.format(formatterBackend)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFFFFF1F1))
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Nuevo Registro de Crecimiento", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(
-                value = peso,
-                onValueChange = { newValue ->
-                    // Permitir solo números y un punto decimal
-                    if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                        peso = newValue
-                    }
-                },
-                label = { Text("Peso (kg)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White,
-                    disabledBorderColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-
-            OutlinedTextField(
-                value = talla,
-                onValueChange = { newValue ->
-                    // Permitir solo números y un punto decimal
-                    if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
-                        talla = newValue
-                    }
-                },
-                label = { Text("Talla (cm)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    disabledContainerColor = Color.White,
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White,
-                    disabledBorderColor = Color.White
-                ),
-                shape = RoundedCornerShape(12.dp)
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-
-
-        OutlinedButton(
-            onClick = { showDatePicker = true },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.Black
-            ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                width = 1.dp,
-                brush = SolidColor(Color.White)
-            ),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = "Seleccionar fecha de registro"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = fechaRegistroDisplay,
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-
-        if (showDatePicker) {
-            val dateState = rememberDatePickerState()
-            val confirmButton = @Composable {
-                Button(onClick = {
-                    dateState.selectedDateMillis?.let { millis ->
-                        val selectedDate = Instant.ofEpochMilli(millis)
-                            .atZone(ZoneId.systemDefault())
-                            .toLocalDate()
-                        val formatterDisplay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                        val formatterBackend = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-                        fechaRegistroDisplay = selectedDate.format(formatterDisplay)
-                        fechaRegistroBackend = selectedDate.format(formatterBackend)
-                    }
-                    showDatePicker = false
-                }) { Text("Aceptar") }
-            }
-            val dismissButton = @Composable {
-                OutlinedButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
-            }
-
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = confirmButton,
-                dismissButton = dismissButton
-            ) {
-                DatePicker(state = dateState)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = observaciones,
-            onValueChange = { observaciones = it },
-            label = { Text("Observaciones (opcional)") },
+    Box( modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFFFD6D6))
+    ){
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            maxLines = 5,
-            singleLine = false,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                disabledContainerColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.White,
-                disabledBorderColor = Color.White
-            ),
-            shape = RoundedCornerShape(12.dp)
-        )
+                .fillMaxSize()
 
-        Spacer(modifier = Modifier.height(20.dp))
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Nuevo Registro de Crecimiento", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
 
-        Button(
-            onClick = {
-                val pesoKg = peso.toDoubleOrNull()
-                val tallaCm = talla.toDoubleOrNull()
-
-                if (pesoKg == null || tallaCm == null || tallaCm <= 0.0) { // Talla no puede ser 0 o negativa
-                    Toast.makeText(context, "Por favor, ingresa valores válidos para peso y talla.", Toast.LENGTH_LONG).show()
-                    return@Button
-                }
-                if (fechaRegistroBackend.isBlank()) {
-                    Toast.makeText(context, "Por favor, selecciona una fecha de registro.", Toast.LENGTH_LONG).show()
-                    return@Button
-                }
-
-
-                val edadMeses = try {
-                    calcularEdadEnMeses(fechaNacimiento, fechaRegistroBackend)
-                } catch (e: DateTimeParseException) {
-                    Toast.makeText(context, "Error al calcular edad: Formato de fecha de nacimiento o registro inválido.", Toast.LENGTH_LONG).show()
-                    Log.e("AgregarControl", "Error parsing date for age calculation: ${e.message}")
-                    return@Button
-                }
-
-
-                val imc = pesoKg / ((tallaCm / 100) * (tallaCm / 100))
-                val alerta = when {
-                    imc < 14.0 -> "¡IMC bajo!"
-                    imc > 18.0 -> "¡IMC alto!"
-                    else -> "IMC normal"
-                }
-                Toast.makeText(context, alerta, Toast.LENGTH_LONG).show()
-
-                val control = ControlCrecimiento(
-                    // _id se omite porque el backend lo genera
-                    child_id = childId,
-                    fecha = fechaRegistroBackend, // Usa la fecha de registro formateada para la API
-                    peso_kg = pesoKg,
-                    talla_cm = tallaCm,
-                    edad_meses = edadMeses,
-                    imc = imc,
-                    observaciones = observaciones.ifBlank { null }
-                )
-
-                ApiClient.apiService.registrarControl(control).enqueue(object : Callback<ControlCrecimiento> {
-                    override fun onResponse(
-                        call: Call<ControlCrecimiento>,
-                        response: Response<ControlCrecimiento>
-                    ) {
-                        if (response.isSuccessful) {
-                            Toast.makeText(context, "Registro creado con éxito", Toast.LENGTH_SHORT).show()
-                            navController.popBackStack()
-                        } else {
-                            val errorBody = response.errorBody()?.string()
-                            Toast.makeText(context, "Error: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
-                            Log.e("AgregarControl", "Error response: ${response.code()} - $errorBody")
+            Spacer(modifier = Modifier.height(20.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = peso,
+                    onValueChange = { newValue ->
+                        // Permitir solo números y un punto decimal
+                        if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                            peso = newValue
                         }
+                    },
+                    label = { Text("Peso (kg)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+
+                        unfocusedBorderColor = Color.Black,
+                        unfocusedLabelColor = Color.Black,
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                OutlinedTextField(
+                    value = talla,
+                    onValueChange = { newValue ->
+                        // Permitir solo números y un punto decimal
+                        if (newValue.matches(Regex("^\\d*\\.?\\d*\$"))) {
+                            talla = newValue
+                        }
+                    },
+                    label = { Text("Talla (cm)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.weight(1f),
+                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+
+                        unfocusedBorderColor = Color.Black,
+                        unfocusedLabelColor = Color.Black,
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+
+
+            OutlinedButton(
+                onClick = { showDatePicker = true },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.Black
+                ),
+                border = ButtonDefaults.outlinedButtonBorder.copy(
+                    width = 1.dp,
+                    brush = SolidColor(Color.White)
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = "Seleccionar fecha de registro"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = fechaRegistroDisplay,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            if (showDatePicker) {
+                val dateState = rememberDatePickerState()
+                val confirmButton = @Composable {
+                    Button(onClick = {
+                        dateState.selectedDateMillis?.let { millis ->
+                            val selectedDate = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                            val formatterDisplay = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            val formatterBackend = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+                            fechaRegistroDisplay = selectedDate.format(formatterDisplay)
+                            fechaRegistroBackend = selectedDate.format(formatterBackend)
+                        }
+                        showDatePicker = false
+                    }) { Text("Aceptar") }
+                }
+                val dismissButton = @Composable {
+                    OutlinedButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+                }
+
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = confirmButton,
+                    dismissButton = dismissButton
+                ) {
+                    DatePicker(state = dateState)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = observaciones,
+                onValueChange = { observaciones = it },
+                label = { Text("Observaciones (opcional)") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
+                maxLines = 5,
+                singleLine = false,
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+
+                    unfocusedBorderColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                ),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    val pesoKg = peso.toDoubleOrNull()
+                    val tallaCm = talla.toDoubleOrNull()
+
+                    if (pesoKg == null || tallaCm == null || tallaCm <= 0.0) { // Talla no puede ser 0 o negativa
+                        Toast.makeText(context, "Por favor, ingresa valores válidos para peso y talla.", Toast.LENGTH_LONG).show()
+                        return@Button
+                    }
+                    if (fechaRegistroBackend.isBlank()) {
+                        Toast.makeText(context, "Por favor, selecciona una fecha de registro.", Toast.LENGTH_LONG).show()
+                        return@Button
                     }
 
-                    override fun onFailure(call: Call<ControlCrecimiento>, t: Throwable) {
-                        Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_SHORT).show()
-                        Log.e("AgregarControl", "Network error: ${t.message}", t)
+
+                    val edadMeses = try {
+                        calcularEdadEnMeses(fechaNacimiento, fechaRegistroBackend)
+                    } catch (e: DateTimeParseException) {
+                        Toast.makeText(context, "Error al calcular edad: Formato de fecha de nacimiento o registro inválido.", Toast.LENGTH_LONG).show()
+                        Log.e("AgregarControl", "Error parsing date for age calculation: ${e.message}")
+                        return@Button
                     }
-                })
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB3B3))
-        ) {
-            Text("Guardar", color = Color.Black)
+
+
+                    val imc = pesoKg / ((tallaCm / 100) * (tallaCm / 100))
+                    val alerta = when {
+                        imc < 14.0 -> "¡IMC bajo!"
+                        imc > 18.0 -> "¡IMC alto!"
+                        else -> "IMC normal"
+                    }
+                    Toast.makeText(context, alerta, Toast.LENGTH_LONG).show()
+
+                    val control = ControlCrecimiento(
+                        // _id se omite porque el backend lo genera
+                        child_id = childId,
+                        fecha = fechaRegistroBackend, // Usa la fecha de registro formateada para la API
+                        peso_kg = pesoKg,
+                        talla_cm = tallaCm,
+                        edad_meses = edadMeses,
+                        imc = imc,
+                        observaciones = observaciones.ifBlank { null }
+                    )
+
+                    ApiClient.apiService.registrarControl(control).enqueue(object : Callback<ControlCrecimiento> {
+                        override fun onResponse(
+                            call: Call<ControlCrecimiento>,
+                            response: Response<ControlCrecimiento>
+                        ) {
+                            if (response.isSuccessful) {
+                                Toast.makeText(context, "Registro creado con éxito", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            } else {
+                                val errorBody = response.errorBody()?.string()
+                                Toast.makeText(context, "Error: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
+                                Log.e("AgregarControl", "Error response: ${response.code()} - $errorBody")
+                            }
+                        }
+
+                        override fun onFailure(call: Call<ControlCrecimiento>, t: Throwable) {
+                            Toast.makeText(context, "Error de red: ${t.message}", Toast.LENGTH_SHORT).show()
+                            Log.e("AgregarControl", "Network error: ${t.message}", t)
+                        }
+                    })
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB3B3))
+            ) {
+                Text("Guardar", color = Color.Black)
+            }
         }
     }
+
+
 }
 
 // Cálculo de edad en meses desde fecha de nacimiento

@@ -95,7 +95,17 @@ fun ControlCrecimientoScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     modifier = Modifier
                         .menuAnchor()
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+
+                    colors =  TextFieldDefaults.outlinedTextFieldColors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+
+                        unfocusedBorderColor = Color.Black,
+                        unfocusedLabelColor = Color.Black,
+                ),
                 )
 
                 ExposedDropdownMenu(
